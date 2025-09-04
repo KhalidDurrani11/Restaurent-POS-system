@@ -1,4 +1,3 @@
-
 import React, { useContext } from 'react';
 import { DataContext } from '../../App';
 
@@ -11,30 +10,30 @@ const Reports: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-3xl font-bold text-gray-800">Sales Reports</h2>
-      <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+      <h2 className="text-3xl font-bold text-gray-100">Sales Reports</h2>
+      <div className="bg-slate-900/50 border border-white/10 rounded-2xl shadow-lg p-6 overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b bg-gray-50">
-              <th className="p-4">Transaction ID</th>
-              <th className="p-4">Timestamp</th>
-              <th className="p-4">Items</th>
-              <th className="p-4">Total Amount</th>
+            <tr className="border-b border-white/10">
+              <th className="p-4 text-gray-300 font-semibold">Transaction ID</th>
+              <th className="p-4 text-gray-300 font-semibold">Timestamp</th>
+              <th className="p-4 text-gray-300 font-semibold">Items</th>
+              <th className="p-4 text-gray-300 font-semibold">Total Amount</th>
             </tr>
           </thead>
           <tbody>
             {sales.slice().reverse().map(sale => (
-              <tr key={sale.id} className="border-b hover:bg-gray-50">
+              <tr key={sale.id} className="border-b border-white/10 hover:bg-white/5">
                 <td className="p-4 font-mono text-sm text-gray-500">{sale.id}</td>
-                <td className="p-4 text-gray-600">{new Date(sale.timestamp).toLocaleString()}</td>
-                <td className="p-4 text-gray-600">
-                    <ul className="list-disc list-inside">
+                <td className="p-4 text-gray-400">{new Date(sale.timestamp).toLocaleString()}</td>
+                <td className="p-4 text-gray-400">
+                    <ul className="space-y-1">
                         {sale.items.map((item, index) => (
-                            <li key={index}>{getProductName(item.productId)} x {item.quantity}</li>
+                            <li key={index}><span className="text-gray-200">{getProductName(item.productId)}</span> x {item.quantity}</li>
                         ))}
                     </ul>
                 </td>
-                <td className="p-4 text-gray-800 font-semibold">Rs. {sale.totalAmount.toFixed(2)}</td>
+                <td className="p-4 text-gray-100 font-semibold">Rs. {sale.totalAmount.toFixed(2)}</td>
               </tr>
             ))}
              {sales.length === 0 && (

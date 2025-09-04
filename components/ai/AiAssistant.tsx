@@ -1,15 +1,30 @@
-
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { getAiInsights } from '../../services/geminiService';
 import { DataContext } from '../../App';
 import { SendIcon, AiIcon } from '../ui/Icons';
 import Spinner from '../ui/Spinner';
+// A simple markdown-to-react component
+const SimpleMarkdown: React.FC<{ text: string }> = ({ text }) => {
+    const html = text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')       // Italics
+      .replace(/`(.*?)`/g, '<code class="bg-white/10 px-1 rounded">$1</code>') // Inline code
+      .replace(/\n/g, '<br />');                  // Newlines
+    
+    return <p dangerouslySetInnerHTML={{ __html: html }} />;
+};
+
 
 const AiAssistant: React.FC = () => {
   const { products, sales } = useContext(DataContext);
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<{ query: string; response: string }[]>([]);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [conversation, isLoading]);
 
   const handleQuery = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,11 +32,16 @@ const AiAssistant: React.FC = () => {
 
     setIsLoading(true);
     const userQuery = query;
+    setConversation(prev => [...prev, { query: userQuery, response: '...' }]); // Optimistic UI
     setQuery('');
 
     const response = await getAiInsights(userQuery, products, sales);
-
-    setConversation(prev => [...prev, { query: userQuery, response }]);
+    
+    setConversation(prev => {
+        const newConversation = [...prev];
+        newConversation[newConversation.length - 1].response = response;
+        return newConversation;
+    });
     setIsLoading(false);
   };
   
@@ -34,48 +54,50 @@ const AiAssistant: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-100px)] flex flex-col">
-      <h2 className="text-3xl font-bold text-gray-800 mb-4">AI Assistant</h2>
-      <div className="bg-white rounded-lg shadow-md flex-1 flex flex-col p-4">
-        <div className="flex-1 overflow-y-auto space-y-4 p-4">
+      <h2 className="text-3xl font-bold text-gray-100 mb-4">AI Assistant</h2>
+      <div className="bg-slate-900/50 border border-white/10 rounded-2xl shadow-lg flex-1 flex flex-col p-4">
+        <div className="flex-1 overflow-y-auto space-y-6 p-4">
             {conversation.length === 0 && (
-                <div className="text-center text-gray-500 flex flex-col items-center justify-center h-full">
-                    <AiIcon className="w-16 h-16 mb-4 text-indigo-300" />
-                    <h3 className="text-xl font-semibold mb-2">Ask me anything about your business</h3>
+                <div className="text-center text-gray-400 flex flex-col items-center justify-center h-full">
+                    <AiIcon className="w-20 h-20 mb-4 text-indigo-500 drop-shadow-[0_0_15px_rgba(79,70,229,0.7)]" />
+                    <h3 className="text-2xl font-semibold mb-2 text-white">Ask me anything about your business</h3>
                     <p>Try one of these examples:</p>
-                    <div className="mt-4 space-y-2">
+                    <div className="mt-4 flex flex-wrap justify-center gap-2">
                         {exampleQueries.map(q => (
-                            <button key={q} onClick={() => setQuery(q)} className="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1 rounded-full transition-colors">{q}</button>
+                            <button key={q} onClick={() => setQuery(q)} className="text-sm bg-white/10 hover:bg-white/20 text-gray-300 px-3 py-1.5 rounded-full transition-colors">{q}</button>
                         ))}
                     </div>
                 </div>
             )}
           {conversation.map((entry, index) => (
-            <div key={index} className="space-y-2">
-              <div className="text-right">
-                <p className="inline-block bg-indigo-500 text-white rounded-lg px-4 py-2 max-w-lg">{entry.query}</p>
+            <div key={index} className="space-y-4">
+              <div className="flex justify-end">
+                <p className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-br-none px-4 py-3 max-w-lg shadow-lg">{entry.query}</p>
               </div>
-              <div>
-                <p className="inline-block bg-gray-200 text-gray-800 rounded-lg px-4 py-2 max-w-lg whitespace-pre-wrap">{entry.response}</p>
+              <div className="flex justify-start">
+                  <div className="bg-slate-700 text-gray-200 rounded-2xl rounded-bl-none px-4 py-3 max-w-lg shadow-lg">
+                    {isLoading && entry.response === '...' ? <Spinner/> : <SimpleMarkdown text={entry.response} />}
+                  </div>
               </div>
             </div>
           ))}
-           {isLoading && <div className="flex justify-center"><Spinner /></div>}
+           <div ref={chatEndRef} />
         </div>
-        <form onSubmit={handleQuery} className="mt-4 flex items-center border-t pt-4">
+        <form onSubmit={handleQuery} className="mt-4 flex items-center border-t border-white/10 pt-4">
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g., 'What was our total revenue this week?'"
-            className="flex-1 px-4 py-2 border rounded-l-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="flex-1 px-4 py-3 border border-white/20 bg-white/5 rounded-l-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
             disabled={isLoading}
           />
           <button
             type="submit"
-            className="bg-indigo-600 text-white px-5 py-3 rounded-r-full hover:bg-indigo-700 disabled:bg-gray-400"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3.5 rounded-r-full hover:from-purple-700 hover:to-indigo-700 disabled:from-gray-600 disabled:to-gray-700 transition-all shadow-lg shadow-indigo-500/30"
             disabled={isLoading}
           >
-            <SendIcon className="w-5 h-5"/>
+            <SendIcon className="w-6 h-6"/>
           </button>
         </form>
       </div>

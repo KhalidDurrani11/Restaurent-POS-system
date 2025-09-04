@@ -1,4 +1,3 @@
-
 import React, { useContext } from 'react';
 import { AuthContext } from '../../App';
 import { UserRole } from '../../types';
@@ -26,9 +25,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
       : [{ id: 'pos', label: 'POS', icon: <PosIcon /> }];
 
   return (
-    <aside className="w-64 bg-white shadow-md flex-shrink-0 flex flex-col">
-      <div className="h-20 flex items-center justify-center border-b">
-        <h1 className="text-2xl font-bold text-indigo-600">AI POS</h1>
+    <aside className="w-64 bg-slate-900/70 backdrop-blur-lg border-r border-white/10 flex-shrink-0 flex flex-col">
+      <div className="h-20 flex items-center justify-center border-b border-white/10">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-500 to-indigo-400 text-transparent bg-clip-text">AI POS</h1>
       </div>
       <nav className="flex-1 px-4 py-6 space-y-2">
         {navItems.map((item) => (
@@ -39,8 +38,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView }) => {
               e.preventDefault();
               setActiveView(item.id);
             }}
-            className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 ${
-              activeView === item.id ? 'bg-indigo-100 text-indigo-600 font-semibold' : ''
+            className={`flex items-center space-x-4 px-4 py-3 rounded-lg transition-all text-gray-300 hover:bg-white/5 hover:text-white transform hover:translate-x-2 ${
+              activeView === item.id ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold shadow-lg shadow-indigo-500/30' : ''
             }`}
           >
             <span className="w-6 h-6">{item.icon}</span>

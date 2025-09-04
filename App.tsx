@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useCallback } from 'react';
 import { User, UserRole, Product, CartItem, SaleTransaction, Category } from './types';
 import { INITIAL_PRODUCTS, CATEGORIES } from './constants';
@@ -124,11 +123,11 @@ const App: React.FC = () => {
   return (
     <AuthContext.Provider value={authContextValue}>
       <DataContext.Provider value={dataContextValue}>
-        <div className="flex h-screen bg-gray-50">
+        <div className="flex h-screen bg-slate-900 text-gray-200">
           <Sidebar activeView={activeView} setActiveView={setActiveView} />
           <div className="flex-1 flex flex-col overflow-hidden">
             <Header />
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 md:p-8">
+            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-800 p-4 md:p-8">
               {renderContent()}
             </main>
           </div>
