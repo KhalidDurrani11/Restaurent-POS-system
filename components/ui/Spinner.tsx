@@ -2,7 +2,12 @@ import React from 'react';
 
 const Spinner: React.FC = () => {
     return (
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-400"></div>
+        <div className="flex space-x-1 justify-center items-center">
+            <span className="sr-only">Loading...</span>
+            <div className="h-2 w-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+            <div className="h-2 w-2 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+            <div className="h-2 w-2 bg-cyan-400 rounded-full animate-bounce"></div>
+        </div>
     );
 };
 

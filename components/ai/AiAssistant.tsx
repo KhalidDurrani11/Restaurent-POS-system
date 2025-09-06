@@ -55,11 +55,11 @@ const AiAssistant: React.FC = () => {
   return (
     <div className="h-[calc(100vh-100px)] flex flex-col">
       <h2 className="text-3xl font-bold text-gray-100 mb-4">AI Assistant</h2>
-      <div className="bg-slate-900/50 border border-white/10 rounded-2xl shadow-lg flex-1 flex flex-col p-4">
+      <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg flex-1 flex flex-col p-4">
         <div className="flex-1 overflow-y-auto space-y-6 p-4">
             {conversation.length === 0 && (
                 <div className="text-center text-gray-400 flex flex-col items-center justify-center h-full">
-                    <AiIcon className="w-20 h-20 mb-4 text-indigo-500 drop-shadow-[0_0_15px_rgba(79,70,229,0.7)]" />
+                    <AiIcon className="w-20 h-20 mb-4 text-teal-400 drop-shadow-[0_0_15px_rgba(45,212,191,0.7)] animate-pulse" />
                     <h3 className="text-2xl font-semibold mb-2 text-white">Ask me anything about your business</h3>
                     <p>Try one of these examples:</p>
                     <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -72,7 +72,7 @@ const AiAssistant: React.FC = () => {
           {conversation.map((entry, index) => (
             <div key={index} className="space-y-4">
               <div className="flex justify-end">
-                <p className="bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-2xl rounded-br-none px-4 py-3 max-w-lg shadow-lg">{entry.query}</p>
+                <p className="bg-gradient-to-br from-teal-500 to-cyan-500 text-white rounded-2xl rounded-br-none px-4 py-3 max-w-lg shadow-lg">{entry.query}</p>
               </div>
               <div className="flex justify-start">
                   <div className="bg-slate-700 text-gray-200 rounded-2xl rounded-bl-none px-4 py-3 max-w-lg shadow-lg">
@@ -89,12 +89,12 @@ const AiAssistant: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="e.g., 'What was our total revenue this week?'"
-            className="flex-1 px-4 py-3 border border-white/20 bg-white/5 rounded-l-full focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white"
+            className="flex-1 px-4 py-3 border border-white/20 bg-white/5 rounded-l-full focus:outline-none focus:ring-2 focus:ring-cyan-500 text-white"
             disabled={isLoading}
           />
           <button
             type="submit"
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-3.5 rounded-r-full hover:from-purple-700 hover:to-indigo-700 disabled:from-gray-600 disabled:to-gray-700 transition-all shadow-lg shadow-indigo-500/30"
+            className="bg-gradient-to-r from-teal-500 to-cyan-400 text-white p-3.5 rounded-r-full hover:from-teal-600 hover:to-cyan-500 disabled:from-gray-600 disabled:to-gray-700 transition-all shadow-lg shadow-cyan-500/30"
             disabled={isLoading}
           >
             <SendIcon className="w-6 h-6"/>

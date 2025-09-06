@@ -50,7 +50,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, categories, onSave, 
         });
     };
     
-    const inputClasses = "mt-1 block w-full border border-white/20 bg-white/10 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white";
+    const inputClasses = "mt-1 block w-full border border-white/20 bg-white/10 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 text-white";
 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,7 +76,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, categories, onSave, 
             </div>
             <div className="flex justify-end space-x-3 pt-4">
                 <button type="button" onClick={onCancel} className="bg-white/10 text-gray-200 px-4 py-2 rounded-lg hover:bg-white/20 transition-colors">Cancel</button>
-                <button type="submit" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors shadow-lg shadow-indigo-500/30">Save</button>
+                <button type="submit" className="bg-gradient-to-r from-teal-500 to-cyan-400 text-white px-4 py-2 rounded-lg hover:from-teal-600 hover:to-cyan-500 transition-colors shadow-lg shadow-cyan-500/30">Save</button>
             </div>
         </form>
     );

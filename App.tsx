@@ -111,6 +111,14 @@ const App: React.FC = () => {
         return <Dashboard />;
     }
   };
+  
+  const animatedContent = useMemo(() => {
+    return (
+        <div key={activeView} className="animate-fade-in">
+            {renderContent()}
+        </div>
+    );
+  }, [activeView, user]);
 
   if (!user) {
     return (
@@ -123,12 +131,12 @@ const App: React.FC = () => {
   return (
     <AuthContext.Provider value={authContextValue}>
       <DataContext.Provider value={dataContextValue}>
-        <div className="flex h-screen bg-slate-900 text-gray-200">
+        <div className="flex h-screen text-gray-200">
           <Sidebar activeView={activeView} setActiveView={setActiveView} />
-          <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-1 flex flex-col overflow-hidden bg-black/30">
             <Header />
-            <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-800 p-4 md:p-8">
-              {renderContent()}
+            <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
+              {animatedContent}
             </main>
           </div>
         </div>

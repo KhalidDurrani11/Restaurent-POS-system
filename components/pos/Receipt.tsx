@@ -26,11 +26,11 @@ const Receipt: React.FC<ReceiptProps> = ({ cart, total, onClose }) => {
     };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm">
-      <div className="bg-slate-800 border border-white/20 rounded-2xl shadow-2xl p-8 w-full max-w-md text-white">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm animate-fade-in">
+      <div className="bg-slate-900/70 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8 w-full max-w-md text-white">
         <div ref={receiptRef}>
             <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-indigo-400 text-transparent bg-clip-text">AI POS</h2>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-300 text-transparent bg-clip-text">Khan's Restaurant</h2>
                 <p className="text-gray-400">Sale Receipt</p>
                 <p className="text-sm text-gray-500">{new Date().toLocaleString()}</p>
             </div>
@@ -50,7 +50,7 @@ const Receipt: React.FC<ReceiptProps> = ({ cart, total, onClose }) => {
         </div>
         <div className="mt-8 flex justify-end space-x-3">
             <button onClick={onClose} className="px-4 py-2 bg-white/10 text-gray-200 rounded-lg hover:bg-white/20 transition-colors">Close</button>
-            <button onClick={handlePrint} className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-colors shadow-md shadow-indigo-500/30">Print</button>
+            <button onClick={handlePrint} className="px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-400 text-white rounded-lg hover:from-teal-600 hover:to-cyan-500 transition-colors shadow-md shadow-cyan-500/30">Print</button>
         </div>
       </div>
     </div>

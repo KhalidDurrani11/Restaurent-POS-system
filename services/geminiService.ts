@@ -25,6 +25,7 @@ export const getAiInsights = async (
 
     const prompt = `
       You are an expert data analyst for a retail Point of Sale system.
+      All monetary values are in Rupees (Rs.). When you provide answers with currency, use "Rs." as the currency symbol.
       Analyze the provided JSON data to answer the user's question.
       Provide a concise and direct answer. Format your response using Markdown for clarity (e.g., use lists, bold text).
       Today's date is ${today}. Sales timestamps are in ISO 8601 format.

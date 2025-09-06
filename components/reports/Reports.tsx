@@ -11,7 +11,7 @@ const Reports: React.FC = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-3xl font-bold text-gray-100">Sales Reports</h2>
-      <div className="bg-slate-900/50 border border-white/10 rounded-2xl shadow-lg p-6 overflow-x-auto">
+      <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg p-6 overflow-x-auto">
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-white/10">
@@ -22,8 +22,8 @@ const Reports: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {sales.slice().reverse().map(sale => (
-              <tr key={sale.id} className="border-b border-white/10 hover:bg-white/5">
+            {sales.slice().reverse().map((sale, index) => (
+              <tr key={sale.id} className="border-b border-white/10 hover:bg-white/5 stagger-in" style={{animationDelay: `${index * 50}ms`}}>
                 <td className="p-4 font-mono text-sm text-gray-500">{sale.id}</td>
                 <td className="p-4 text-gray-400">{new Date(sale.timestamp).toLocaleString()}</td>
                 <td className="p-4 text-gray-400">
