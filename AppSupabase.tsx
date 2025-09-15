@@ -251,3 +251,4 @@ const AppSupabase: React.FC = () => {
 };
 
 export default AppSupabase;
+

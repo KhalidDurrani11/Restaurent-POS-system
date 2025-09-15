@@ -193,3 +193,4 @@ const ProductManagementSupabase: React.FC = () => {
 };
 
 export default ProductManagementSupabase;
+

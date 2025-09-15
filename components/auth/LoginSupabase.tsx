@@ -63,6 +63,11 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
           <p className="mt-2 text-gray-400">
             Sign in to your account
           </p>
+          <p className="mt-1 text-sm text-gray-500">
+            Admin: admin@khanpos.com / admin 
+            <br />
+            Cashier: cashier@khanpos.com / cashier
+          </p>
         </div>
         
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
@@ -140,3 +145,4 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
 };
 
 export default LoginSupabase;
+

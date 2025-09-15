@@ -123,3 +123,4 @@ const transaction = await transactionService.create({
 - Use environment variables for production deployments
 - Regularly rotate your API keys
 - Review and update RLS policies as needed
+

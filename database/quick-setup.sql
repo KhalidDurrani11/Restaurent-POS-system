@@ -156,3 +156,4 @@ ON CONFLICT (email) DO NOTHING;
 
 -- Success message
 SELECT 'Database setup completed successfully! You can now login with admin/admin or cashier/cashier.' as message;
+
