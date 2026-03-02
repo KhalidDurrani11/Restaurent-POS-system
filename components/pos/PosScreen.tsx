@@ -11,6 +11,7 @@ const PosScreen: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showReceipt, setShowReceipt] = useState(false);
   const [lastSale, setLastSale] = useState<CartItem[] | null>(null);
+  const [receiptNumber, setReceiptNumber] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
 
@@ -69,6 +70,7 @@ const PosScreen: React.FC = () => {
 
   const handleCheckout = () => {
     if (cart.length === 0 || !user) return;
+    setReceiptNumber(`REC-${new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')}`);
     setLastSale(cart);
     setShowReceipt(true);
   };
@@ -79,6 +81,8 @@ const PosScreen: React.FC = () => {
         <Receipt
           cart={lastSale}
           total={lastSale.reduce((acc, item) => acc + item.price * item.quantity, 0)}
+          paymentMethod={paymentMethod}
+          receiptNumber={receiptNumber}
           onClose={() => setShowReceipt(false)}
           onPrint={() => {
             if (user) {
