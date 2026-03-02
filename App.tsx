@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { User, UserRole, Product, CartItem, SaleTransaction, Category } from './types';
+import { User, UserRole, Product, CartItem, SaleTransaction, Category, PaymentMethod } from './types';
 import { productService, categoryService, transactionService, userService } from './services/databaseService';
 import LoginSupabase from './components/auth/LoginSupabase';
 import Sidebar from './components/layout/Sidebar';
@@ -15,7 +15,7 @@ export const DataContext = React.createContext<{
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   sales: SaleTransaction[];
-  addSale: (cart: CartItem[], cashierId: string) => void;
+  addSale: (cart: CartItem[], cashierId: string, paymentMethod: PaymentMethod) => void;
   categories: Category[];
   loading: boolean;
   error: string | null;
@@ -50,6 +50,7 @@ const App: React.FC = () => {
   const [activeView, setActiveView] = useState('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Load initial data when user logs in
   useEffect(() => {
@@ -110,7 +111,7 @@ const App: React.FC = () => {
     }
   };
 
-  const addSale = useCallback(async (cart: CartItem[], cashierId: string) => {
+  const addSale = useCallback(async (cart: CartItem[], cashierId: string, paymentMethod: PaymentMethod) => {
     try {
       setError(null);
       
@@ -119,7 +120,7 @@ const App: React.FC = () => {
       const transactionData = {
         total_amount: totalAmount,
         cashier_id: cashierId,
-        payment_method: 'CASH' as const,
+        payment_method: paymentMethod,
         items: cart.map(item => ({
           product_id: item.id,
           quantity: item.quantity,
@@ -237,10 +238,18 @@ const App: React.FC = () => {
   return (
     <AuthContext.Provider value={authContextValue}>
       <DataContext.Provider value={dataContextValue}>
-        <div className="flex h-screen text-gray-200">
-          <Sidebar activeView={activeView} setActiveView={setActiveView} />
+        <div className="flex h-screen text-gray-200 overflow-hidden">
+          <Sidebar
+            activeView={activeView}
+            setActiveView={(view) => {
+              setActiveView(view);
+              setIsSidebarOpen(false);
+            }}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
           <div className="flex-1 flex flex-col overflow-hidden bg-black/30">
-            <Header />
+            <Header onMenuClick={() => setIsSidebarOpen(true)} />
             <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
               {animatedContent}
             </main>

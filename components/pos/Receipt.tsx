@@ -34,7 +34,7 @@ const Receipt: React.FC<ReceiptProps> = ({ cart, total, onClose, onPrint }) => {
       <div className="bg-slate-900/70 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8 w-full max-w-md text-white">
         <div ref={receiptRef}>
             <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-300 text-transparent bg-clip-text">Khan's Restaurant</h2>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-teal-400 to-cyan-300 text-transparent bg-clip-text">Khan Medical POS</h2>
                 <p className="text-gray-400">Sale Receipt</p>
                 <p className="text-sm text-gray-500">{new Date().toLocaleString()}</p>
                 <div className="mt-2 px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-yellow-300 text-xs">

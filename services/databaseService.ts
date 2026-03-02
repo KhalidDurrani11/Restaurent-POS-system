@@ -1,11 +1,45 @@
 import { supabase } from './supabase';
 import { Product, Category, SaleTransaction, User, UserRole } from '../types';
 
+type SupabaseErrorLike = {
+  message?: string;
+  details?: string;
+  hint?: string;
+  code?: string;
+};
+
+function toFriendlySupabaseError(action: string, error: unknown): Error {
+  const e = error as SupabaseErrorLike | null | undefined;
+  const code = e?.code ? ` (code: ${e.code})` : '';
+  const details = e?.details ? `\n${e.details}` : '';
+  const hint = e?.hint ? `\nHint: ${e.hint}` : '';
+
+  if (e?.code === '42P01') {
+    return new Error(
+      `${action} failed because a required table/view is missing in Supabase.${code}\n` +
+        `Did you run \`database/schema.sql\` (or \`database/quick-setup.sql\`) in the Supabase SQL editor?${details}${hint}`
+    );
+  }
+
+  if (e?.code === '42501') {
+    return new Error(
+      `${action} failed due to permissions / Row Level Security.${code}\n` +
+        `Make sure you're logged in (not demo-mode) and your RLS policies allow the operation.${details}${hint}`
+    );
+  }
+
+  if (typeof e?.message === 'string' && e.message.trim()) {
+    return new Error(`${action} failed: ${e.message}${code}${details}${hint}`);
+  }
+
+  return new Error(`${action} failed.${code}`);
+}
+
 // User operations
 export const userService = {
   async getCurrentUser() {
     const { data: { user }, error } = await supabase.auth.getUser();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Get current user', error);
     return user;
   },
 
@@ -14,13 +48,13 @@ export const userService = {
       email,
       password,
     });
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Sign in', error);
     return data;
   },
 
   async signOut() {
     const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Sign out', error);
   },
 
   async getUserProfile(userId: string) {
@@ -28,8 +62,9 @@ export const userService = {
       .from('users')
       .select('*')
       .eq('id', userId)
-      .single();
-    if (error) throw error;
+      .maybeSingle();
+    if (error) throw toFriendlySupabaseError('Get user profile', error);
+    if (!data) throw new Error('User profile not found in `users` table.');
     return data;
   },
 
@@ -39,9 +74,49 @@ export const userService = {
       .insert([userData])
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Create user', error);
     return data;
-  }
+  },
+
+  async ensureUserProfile(authUser: { id: string; email?: string | null }) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', authUser.id)
+      .maybeSingle();
+
+    if (error) throw toFriendlySupabaseError('Fetch user profile', error);
+    if (data) return data;
+
+    const email = (authUser.email?.trim() || '').toLowerCase();
+    const role: UserRole =
+      email === 'admin@gmail.com' ? ('ADMIN' as UserRole) : ('CASHIER' as UserRole);
+
+    const name =
+      email === 'admin@gmail.com'
+        ? 'Admin'
+        : email === 'cashier@gmail.com'
+          ? 'Cashier'
+          : email && email.includes('@')
+            ? email.split('@')[0].replace(/[._-]+/g, ' ').replace(/\s+/g, ' ').trim()
+            : 'User';
+
+    const { data: created, error: createError } = await supabase
+      .from('users')
+      .insert([
+        {
+          id: authUser.id,
+          name,
+          email,
+          role,
+        },
+      ])
+      .select('*')
+      .single();
+
+    if (createError) throw toFriendlySupabaseError('Create user profile', createError);
+    return created;
+  },
 };
 
 // Category operations
@@ -51,7 +126,7 @@ export const categoryService = {
       .from('categories')
       .select('*')
       .order('name');
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch categories', error);
     return data;
   },
 
@@ -61,7 +136,7 @@ export const categoryService = {
       .select('*')
       .eq('id', id)
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch category', error);
     return data;
   },
 
@@ -71,7 +146,7 @@ export const categoryService = {
       .insert([category])
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Create category', error);
     return data;
   },
 
@@ -82,7 +157,7 @@ export const categoryService = {
       .eq('id', id)
       .select()
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Update category', error);
     return data;
   },
 
@@ -91,7 +166,7 @@ export const categoryService = {
       .from('categories')
       .delete()
       .eq('id', id);
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Delete category', error);
   }
 };
 
@@ -108,11 +183,11 @@ export const productService = {
         )
       `)
       .order('name');
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch products', error);
     return data.map(item => ({
       id: item.id,
       name: item.name,
-      category: item.categories.name,
+      category: item.categories?.name ?? '',
       category_id: item.category_id,
       price: item.price,
       stock: item.stock,
@@ -133,11 +208,11 @@ export const productService = {
       `)
       .eq('id', id)
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch product', error);
     return {
       id: data.id,
       name: data.name,
-      category: data.categories.name,
+      category: data.categories?.name ?? '',
       category_id: data.category_id,
       price: data.price,
       stock: data.stock,
@@ -165,11 +240,11 @@ export const productService = {
         )
       `)
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Create product', error);
     return {
       id: data.id,
       name: data.name,
-      category: data.categories.name,
+      category: data.categories?.name ?? '',
       category_id: data.category_id,
       price: data.price,
       stock: data.stock,
@@ -198,11 +273,11 @@ export const productService = {
         )
       `)
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Update product', error);
     return {
       id: data.id,
       name: data.name,
-      category: data.categories.name,
+      category: data.categories?.name ?? '',
       category_id: data.category_id,
       price: data.price,
       stock: data.stock,
@@ -216,7 +291,7 @@ export const productService = {
       .from('products')
       .delete()
       .eq('id', id);
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Delete product', error);
   },
 
   async updateStock(id: string, newStock: number) {
@@ -227,7 +302,7 @@ export const productService = {
         updated_at: new Date().toISOString() 
       })
       .eq('id', id);
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Update stock', error);
   }
 };
 
@@ -253,17 +328,17 @@ export const transactionService = {
         )
       `)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch transactions', error);
     return data.map(transaction => ({
       id: transaction.id,
       timestamp: transaction.timestamp,
       totalAmount: transaction.total_amount,
       cashierId: transaction.cashier_id,
-      cashierName: transaction.users.name,
+      cashierName: transaction.users?.name ?? 'Unknown',
       paymentMethod: transaction.payment_method,
-      items: transaction.transaction_items.map(item => ({
-        productId: item.products.id,
-        productName: item.products.name,
+      items: (transaction.transaction_items ?? []).map(item => ({
+        productId: item.products?.id ?? '',
+        productName: item.products?.name ?? 'Deleted product',
         quantity: item.quantity,
         unitPrice: item.unit_price
       }))
@@ -291,17 +366,17 @@ export const transactionService = {
       `)
       .eq('id', id)
       .single();
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch transaction', error);
     return {
       id: data.id,
       timestamp: data.timestamp,
       totalAmount: data.total_amount,
       cashierId: data.cashier_id,
-      cashierName: data.users.name,
+      cashierName: data.users?.name ?? 'Unknown',
       paymentMethod: data.payment_method,
-      items: data.transaction_items.map(item => ({
-        productId: item.products.id,
-        productName: item.products.name,
+      items: (data.transaction_items ?? []).map(item => ({
+        productId: item.products?.id ?? '',
+        productName: item.products?.name ?? 'Deleted product',
         quantity: item.quantity,
         unitPrice: item.unit_price
       }))
@@ -330,7 +405,7 @@ export const transactionService = {
       .select()
       .single();
 
-    if (transactionError) throw transactionError;
+    if (transactionError) throw toFriendlySupabaseError('Create transaction', transactionError);
 
     // Insert transaction items
     const transactionItems = transactionData.items.map(item => ({
@@ -344,24 +419,28 @@ export const transactionService = {
       .from('transaction_items')
       .insert(transactionItems);
 
-    if (itemsError) throw itemsError;
+    if (itemsError) throw toFriendlySupabaseError('Create transaction items', itemsError);
 
     // Update product stock
     for (const item of transactionData.items) {
-      const { data: product } = await supabase
+      const { data: product, error: productError } = await supabase
         .from('products')
         .select('stock')
         .eq('id', item.product_id)
         .single();
 
+      if (productError) throw toFriendlySupabaseError('Fetch product stock', productError);
+
       if (product) {
-        await supabase
+        const { error: stockError } = await supabase
           .from('products')
           .update({ 
             stock: product.stock - item.quantity,
             updated_at: new Date().toISOString()
           })
           .eq('id', item.product_id);
+
+        if (stockError) throw toFriendlySupabaseError('Update product stock', stockError);
       }
     }
 
@@ -390,17 +469,17 @@ export const transactionService = {
       .gte('created_at', startDate)
       .lte('created_at', endDate)
       .order('created_at', { ascending: false });
-    if (error) throw error;
+    if (error) throw toFriendlySupabaseError('Fetch transactions (date range)', error);
     return data.map(transaction => ({
       id: transaction.id,
       timestamp: transaction.timestamp,
       totalAmount: transaction.total_amount,
       cashierId: transaction.cashier_id,
-      cashierName: transaction.users.name,
+      cashierName: transaction.users?.name ?? 'Unknown',
       paymentMethod: transaction.payment_method,
-      items: transaction.transaction_items.map(item => ({
-        productId: item.products.id,
-        productName: item.products.name,
+      items: (transaction.transaction_items ?? []).map(item => ({
+        productId: item.products?.id ?? '',
+        productName: item.products?.name ?? 'Deleted product',
         quantity: item.quantity,
         unitPrice: item.unit_price
       }))

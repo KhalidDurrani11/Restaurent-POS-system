@@ -3,7 +3,7 @@ import { DataContext } from '../../App';
 import { SaleTransaction, Product } from '../../types';
 import StatCard from './StatCard';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CurrencyRupeeIcon, ShoppingCartIcon, UsersIcon, ChartBarIcon } from '../ui/Icons';
+import { CurrencyRupeeIcon, ShoppingCartIcon, StockIcon, ChartBarIcon } from '../ui/Icons';
 
 
 const Dashboard: React.FC = () => {
@@ -72,26 +72,26 @@ const Dashboard: React.FC = () => {
     };
 
     const statCards = [
-        { title: "Total Revenue", value: `Rs. ${stats.totalRevenue.toFixed(2)}`, icon: <CurrencyRupeeIcon />, color: "from-green-500 to-emerald-500" },
-        { title: "Revenue Today", value: `Rs. ${stats.revenueToday.toFixed(2)}`, icon: <ChartBarIcon />, color: "from-cyan-500 to-sky-500" },
-        { title: "Total Transactions", value: stats.totalTransactions.toString(), icon: <ShoppingCartIcon />, color: "from-teal-500 to-cyan-500" },
-        { title: "Low Stock Items", value: stats.lowStockItems.toString(), icon: <UsersIcon />, color: "from-amber-500 to-orange-500" }
+        { title: "Total revenue", value: `Rs. ${stats.totalRevenue.toFixed(0)}`, icon: <CurrencyRupeeIcon />, color: "from-green-500 to-emerald-500" },
+        { title: "Today's sales", value: `Rs. ${stats.revenueToday.toFixed(0)}`, icon: <ChartBarIcon />, color: "from-cyan-500 to-sky-500" },
+        { title: "Total sales count", value: stats.totalTransactions.toString(), icon: <ShoppingCartIcon />, color: "from-teal-500 to-cyan-500" },
+        { title: "Items low on stock", value: stats.lowStockItems.toString(), icon: <StockIcon />, color: "from-amber-500 to-orange-500" }
     ];
 
     return (
         <div className="space-y-8">
-            <h2 className="text-3xl font-bold text-gray-100">Dashboard</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {statCards.map((card, index) => (
-                    <div key={card.title} className="stagger-in" style={{ animationDelay: `${index * 100}ms` }}>
-                        <StatCard title={card.title} value={card.value} icon={card.icon} color={card.color}/>
-                    </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white">Dashboard</h2>
+            <p className="text-gray-400 -mt-4">Overview of your medical shop</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {statCards.map((card) => (
+                    <StatCard key={card.title} title={card.title} value={card.value} icon={card.icon} color={card.color}/>
                 ))}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                <div className="lg:col-span-3 bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg p-6 stagger-in" style={{ animationDelay: '400ms' }}>
-                    <h3 className="font-semibold text-lg mb-4 text-gray-200">Last 7 Days Sales</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                <div className="lg:col-span-3 bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg p-6">
+                    <h3 className="font-semibold text-lg mb-1 text-white">Sales in last 7 days</h3>
+                    <p className="text-sm text-gray-400 mb-4">Daily revenue (Rs.)</p>
+                    <ResponsiveContainer width="100%" height={280}>
                         <BarChart data={salesByDay}>
                              <defs>
                                 <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
@@ -108,9 +108,10 @@ const Dashboard: React.FC = () => {
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
-                <div className="lg:col-span-2 bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg p-6 stagger-in" style={{ animationDelay: '500ms' }}>
-                    <h3 className="font-semibold text-lg mb-4 text-gray-200">Top Selling Products</h3>
-                    <ResponsiveContainer width="100%" height={300}>
+                <div className="lg:col-span-2 bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg p-6">
+                    <h3 className="font-semibold text-lg mb-1 text-white">Top selling items</h3>
+                    <p className="text-sm text-gray-400 mb-4">By quantity sold</p>
+                    <ResponsiveContainer width="100%" height={280}>
                         <PieChart>
                             <Pie
                                 data={topSellingProducts}

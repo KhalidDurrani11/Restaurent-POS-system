@@ -1,9 +1,62 @@
 import React from 'react';
 
 const DuotoneIcon: React.FC<{ children: React.ReactNode } & React.SVGProps<SVGSVGElement>> = ({ children, ...props }) => (
-    <svg xmlns="http://www.w.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
         {children}
     </svg>
+);
+
+export const MenuIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+);
+
+export const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.75} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+    </svg>
+);
+
+// Medical category icons
+export const PillIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <DuotoneIcon {...props}>
+        <path d="M8.2 8.2a5 5 0 017.1 0l.5.5-7.1 7.1-.5-.5a5 5 0 010-7.1z" className="text-cyan-400 opacity-40" />
+        <path d="M15.8 8.7a5 5 0 010 7.1l-3.6 3.6a5 5 0 01-7.1-7.1l3.6-3.6a5 5 0 017.1 0z" className="text-cyan-400" />
+        <path d="M9.45 14.55l5.1-5.1" stroke="currentColor" strokeWidth="1.5" className="text-cyan-200 opacity-70" />
+    </DuotoneIcon>
+);
+
+export const VitaminIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <DuotoneIcon {...props}>
+        <path d="M12 2.5c3.5 0 6.5 2.8 6.5 6.2 0 5.2-6.5 12.8-6.5 12.8S5.5 13.9 5.5 8.7C5.5 5.3 8.5 2.5 12 2.5z" className="text-cyan-400 opacity-40" />
+        <path d="M12 6.5v6" className="text-cyan-400" />
+        <path d="M9 9.5h6" className="text-cyan-400" />
+    </DuotoneIcon>
+);
+
+export const BandageIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <DuotoneIcon {...props}>
+        <path d="M7 7a5 5 0 017.1 0l2.9 2.9a5 5 0 010 7.1l-.9.9a5 5 0 01-7.1 0L6.1 15a5 5 0 010-7.1L7 7z" className="text-cyan-400 opacity-40" />
+        <path d="M9.2 9.2l5.6 5.6" className="text-cyan-400" />
+        <path d="M10.3 12h.01M12 13.7h.01M13.7 15.4h.01" className="text-cyan-200 opacity-80" />
+    </DuotoneIcon>
+);
+
+export const DeviceIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <DuotoneIcon {...props}>
+        <path d="M7 3.5h10a2.5 2.5 0 012.5 2.5v10A2.5 2.5 0 0117 18.5H7A2.5 2.5 0 014.5 16V6A2.5 2.5 0 017 3.5z" className="text-cyan-400 opacity-40" />
+        <path d="M9 20.5h6" className="text-cyan-400" />
+        <path d="M8 7h8M8 10h5" className="text-cyan-400" />
+    </DuotoneIcon>
+);
+
+export const CareIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <DuotoneIcon {...props}>
+        <path d="M12 21s-7-4.6-7-10.5A4.5 4.5 0 019.5 6c1.1 0 2.2.5 2.5 1 .3-.5 1.4-1 2.5-1A4.5 4.5 0 0119 10.5C19 16.4 12 21 12 21z" className="text-cyan-400 opacity-40" />
+        <path d="M12 9.5v5" className="text-cyan-400" />
+        <path d="M9.5 12h5" className="text-cyan-400" />
+    </DuotoneIcon>
 );
 
 export const DashboardIcon = (props: React.SVGProps<SVGSVGElement>) => (

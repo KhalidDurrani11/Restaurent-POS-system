@@ -2,8 +2,8 @@
 // Copy this file to supabase.config.ts and update with your actual values
 
 export const supabaseConfig = {
-  url: 'https://zbdqsuyplfklhqydkovo.supabase.co',
-  anonKey: 'sb_publishable_geKbz_UpSYKTZPpLVkK9nQ_ed3ReW0l',
+  url: 'https://your-project-id.supabase.co',
+  anonKey: 'your-anon-or-publishable-key-here',
 };
 
 // Instructions:

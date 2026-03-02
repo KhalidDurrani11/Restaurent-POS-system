@@ -55,7 +55,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, categories, onSave, 
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300">Product Name</label>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300">Item Name</label>
                 <input type="text" name="name" id="name" value={formData.name} onChange={handleChange} required className={inputClasses} />
             </div>
             <div>

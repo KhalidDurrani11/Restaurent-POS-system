@@ -11,6 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+.env.local
+.env.*.local
+
+# Local credentials (do not commit)
+config/supabase.config.ts
 
 # Editor directories and files
 .vscode/*

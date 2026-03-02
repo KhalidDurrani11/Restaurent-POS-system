@@ -53,7 +53,7 @@ const AiAssistant: React.FC = () => {
   ];
 
   return (
-    <div className="h-[calc(100vh-100px)] flex flex-col">
+    <div className="flex flex-col min-h-[60vh]">
       <h2 className="text-3xl font-bold text-gray-100 mb-4">AI Assistant</h2>
       <div className="bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg flex-1 flex flex-col p-4">
         <div className="flex-1 overflow-y-auto space-y-6 p-4">

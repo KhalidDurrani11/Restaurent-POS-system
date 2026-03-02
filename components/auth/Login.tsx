@@ -29,7 +29,7 @@ const Login: React.FC = () => {
             <div className="p-3 bg-gradient-to-br from-teal-500 to-cyan-400 rounded-full mb-4 shadow-lg shadow-cyan-500/30">
                 <PosIcon className="w-10 h-10 text-white" />
             </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white">Welcome to Khan's Restaurant</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-white">Welcome to Khan Medical POS</h1>
           <p className="mt-2 text-gray-400">
             Use: (admin/admin) or (cashier/cashier)
           </p>

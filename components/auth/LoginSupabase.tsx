@@ -24,8 +24,8 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
       const { user } = await userService.signIn(email, password);
       
       if (user) {
-        // Get user profile from our users table
-        const userProfile = await userService.getUserProfile(user.id);
+        // Ensure there's a matching row in our `users` table
+        const userProfile = await userService.ensureUserProfile({ id: user.id, email: user.email });
         
         onLogin({
           id: user.id,
@@ -42,14 +42,27 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
     }
   };
 
-  const handleDemoLogin = () => {
-    // Demo login for testing (remove in production)
-    onLogin({
-      id: 'demo-user',
-      name: 'Demo User',
-      email: 'demo@example.com',
-      role: UserRole.Admin
-    });
+  const handleDemoLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      // Demo login for testing (remove in production)
+      const { user } = await userService.signIn('admin@gmail.com', 'admin');
+      if (!user) throw new Error('Demo sign-in failed.');
+
+      const userProfile = await userService.ensureUserProfile({ id: user.id, email: user.email });
+      onLogin({
+        id: user.id,
+        name: userProfile.name,
+        email: userProfile.email,
+        role: userProfile.role as UserRole,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Demo login failed.');
+      console.error('Demo login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -59,14 +72,14 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
             <div className="p-3 bg-gradient-to-br from-teal-500 to-cyan-400 rounded-full mb-4 shadow-lg shadow-cyan-500/30">
                 <PosIcon className="w-10 h-10 text-white" />
             </div>
-          <h1 className="text-4xl font-bold tracking-tight text-white">Welcome to Khan's Restaurant</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-white">Welcome to Khan Medical POS</h1>
           <p className="mt-2 text-gray-400">
             Sign in to your account
           </p>
           <p className="mt-1 text-sm text-gray-500">
-            Admin: admin@khanpos.com / admin 
+            Admin: admin@gmail.com / admin
             <br />
-            Cashier: cashier@khanpos.com / cashier
+            Cashier: cashier@gmail.com / cashier
           </p>
         </div>
         

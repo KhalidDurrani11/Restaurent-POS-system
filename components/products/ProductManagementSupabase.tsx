@@ -125,13 +125,13 @@ const ProductManagementSupabase: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-3xl font-bold text-gray-100">Product Management</h2>
+                <h2 className="text-3xl font-bold text-gray-100">Inventory Management</h2>
                 <button
                     onClick={openModalForNew}
                     className="flex items-center space-x-2 bg-gradient-to-r from-teal-500 to-cyan-400 text-white px-4 py-2 rounded-lg hover:from-teal-600 hover:to-cyan-500 transition-all transform hover:scale-105 shadow-lg shadow-cyan-500/40"
                 >
                     <PlusIcon className="w-5 h-5"/>
-                    <span>Add Product</span>
+                    <span>Add Item</span>
                 </button>
             </div>
 
@@ -180,7 +180,7 @@ const ProductManagementSupabase: React.FC = () => {
                 </table>
             </div>
             
-            <Modal isOpen={isModalOpen} onClose={closeModal} title={selectedProduct ? 'Edit Product' : 'Add Product'}>
+            <Modal isOpen={isModalOpen} onClose={closeModal} title={selectedProduct ? 'Edit Item' : 'Add Item'}>
                 <ProductForm
                     product={selectedProduct}
                     categories={categories}

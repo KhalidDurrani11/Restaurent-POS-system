@@ -87,24 +87,41 @@ CREATE TRIGGER update_transactions_updated_at BEFORE UPDATE ON transactions
 
 -- Insert initial categories
 INSERT INTO categories (name) VALUES 
-    ('Beverages'),
-    ('Fast Food'),
-    ('Snacks'),
-    ('Grocery')
+    ('OTC Medicines'),
+    ('Prescription Medicines'),
+    ('Vitamins & Supplements'),
+    ('First Aid'),
+    ('Medical Devices'),
+    ('Personal Care')
 ON CONFLICT (name) DO NOTHING;
 
--- Insert initial products
+-- Insert initial products (medical shop items)
 INSERT INTO products (name, category_id, price, stock, description) VALUES 
-    ('Cola', (SELECT id FROM categories WHERE name = 'Beverages'), 1.50, 150, 'Refreshing cola drink'),
-    ('Burger', (SELECT id FROM categories WHERE name = 'Fast Food'), 5.00, 80, 'Delicious beef burger'),
-    ('Fries', (SELECT id FROM categories WHERE name = 'Fast Food'), 2.50, 120, 'Crispy golden fries'),
-    ('Potato Chips', (SELECT id FROM categories WHERE name = 'Snacks'), 1.20, 200, 'Crunchy potato chips'),
-    ('Milk 1L', (SELECT id FROM categories WHERE name = 'Grocery'), 2.00, 50, 'Fresh milk 1 liter'),
-    ('Bread', (SELECT id FROM categories WHERE name = 'Grocery'), 2.20, 60, 'Fresh white bread'),
-    ('Orange Juice', (SELECT id FROM categories WHERE name = 'Beverages'), 3.00, 75, 'Fresh orange juice'),
-    ('Chicken Sandwich', (SELECT id FROM categories WHERE name = 'Fast Food'), 6.50, 40, 'Grilled chicken sandwich'),
-    ('Chocolate Bar', (SELECT id FROM categories WHERE name = 'Snacks'), 1.80, 300, 'Sweet chocolate bar'),
-    ('Water Bottle', (SELECT id FROM categories WHERE name = 'Beverages'), 1.00, 5, 'Pure water bottle')
+    ('Paracetamol 500mg (10 tablets)', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 150.00, 120, 'Pain relief and fever reducer'),
+    ('Ibuprofen 400mg (10 tablets)', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 220.00, 80, 'Anti-inflammatory pain relief'),
+    ('Cetirizine 10mg (10 tablets)', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 180.00, 100, 'Allergy relief antihistamine'),
+    ('Omeprazole 20mg (14 capsules)', (SELECT id FROM categories WHERE name = 'Prescription Medicines'), 350.00, 60, 'Acid reflux support'),
+    ('ORS Sachet', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 60.00, 200, 'Oral rehydration salts'),
+    ('Vitamin C 1000mg (30 tablets)', (SELECT id FROM categories WHERE name = 'Vitamins & Supplements'), 500.00, 50, 'Vitamin C supplement'),
+    ('Antiseptic Solution 100ml', (SELECT id FROM categories WHERE name = 'First Aid'), 180.00, 75, 'Topical antiseptic'),
+    ('Bandage Roll 4 inch', (SELECT id FROM categories WHERE name = 'First Aid'), 90.00, 150, 'Elastic bandage roll'),
+    ('Digital Thermometer', (SELECT id FROM categories WHERE name = 'Medical Devices'), 650.00, 25, 'Digital body thermometer'),
+    ('Blood Pressure Monitor', (SELECT id FROM categories WHERE name = 'Medical Devices'), 4500.00, 10, 'Automatic BP monitor'),
+    ('Aspirin 75mg (30 tablets)', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 120.00, 90, 'Low dose aspirin'),
+    ('Amoxicillin 500mg (10 capsules)', (SELECT id FROM categories WHERE name = 'Prescription Medicines'), 280.00, 45, 'Antibiotic capsules'),
+    ('Multivitamin (60 tablets)', (SELECT id FROM categories WHERE name = 'Vitamins & Supplements'), 650.00, 70, 'Daily multivitamin'),
+    ('Calcium + D3 (30 tablets)', (SELECT id FROM categories WHERE name = 'Vitamins & Supplements'), 420.00, 55, 'Bone health supplement'),
+    ('Cotton Wool 100g', (SELECT id FROM categories WHERE name = 'First Aid'), 85.00, 120, 'Sterile cotton wool'),
+    ('Adhesive Plasters (20 pcs)', (SELECT id FROM categories WHERE name = 'First Aid'), 95.00, 100, 'Assorted plasters'),
+    ('Face Mask (50 pcs)', (SELECT id FROM categories WHERE name = 'First Aid'), 350.00, 80, 'Disposable face masks'),
+    ('Glucose Meter', (SELECT id FROM categories WHERE name = 'Medical Devices'), 1200.00, 15, 'Blood glucose meter'),
+    ('Pulse Oximeter', (SELECT id FROM categories WHERE name = 'Medical Devices'), 850.00, 20, 'Fingertip pulse oximeter'),
+    ('Hand Sanitizer 500ml', (SELECT id FROM categories WHERE name = 'Personal Care'), 220.00, 60, 'Alcohol-based sanitizer'),
+    ('Soap Bar (pack of 3)', (SELECT id FROM categories WHERE name = 'Personal Care'), 150.00, 90, 'Antibacterial soap'),
+    ('Cough Syrup 100ml', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 180.00, 65, 'Cough relief syrup'),
+    ('Diclofenac Gel 30g', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 240.00, 40, 'Topical pain relief gel'),
+    ('Eye Drops 10ml', (SELECT id FROM categories WHERE name = 'OTC Medicines'), 160.00, 75, 'Lubricating eye drops'),
+    ('Vitamin B Complex (30 tablets)', (SELECT id FROM categories WHERE name = 'Vitamins & Supplements'), 380.00, 50, 'B vitamin supplement')
 ON CONFLICT DO NOTHING;
 
 -- Enable Row Level Security (RLS)
@@ -130,30 +147,19 @@ CREATE POLICY "Allow all operations for authenticated users" ON transactions
 CREATE POLICY "Allow all operations for authenticated users" ON transaction_items
     FOR ALL USING (auth.role() = 'authenticated');
 
--- IMPORTANT: After running this SQL, you need to create users in Supabase Auth:
+-- IMPORTANT: After running this SQL, create login users in Supabase Auth:
 -- 1. Go to Authentication > Users in your Supabase dashboard
--- 2. Click "Add user" and create:
---    - Email: admin@khanpos.com, Password: admin, Auto Confirm: Yes
---    - Email: cashier@khanpos.com, Password: cashier, Auto Confirm: Yes
--- 3. After creating auth users, run the following SQL to link them:
+-- 2. Click "Add user" and create (tick "Auto Confirm User"):
+--    - Email: admin@gmail.com   Password: admin
+--    - Email: cashier@gmail.com Password: cashier
+-- 3. On first login, the app will create their profile in public.users with the correct role.
+--    Or run this to link them now (run AFTER creating the auth users above):
+--
+-- INSERT INTO users (id, name, email, role)
+-- SELECT au.id, CASE WHEN au.email = 'admin@gmail.com' THEN 'Admin' WHEN au.email = 'cashier@gmail.com' THEN 'Cashier' END, au.email,
+--        CASE WHEN au.email = 'admin@gmail.com' THEN 'ADMIN' WHEN au.email = 'cashier@gmail.com' THEN 'CASHIER' END
+-- FROM auth.users au WHERE au.email IN ('admin@gmail.com', 'cashier@gmail.com')
+-- ON CONFLICT (email) DO NOTHING;
 
--- Get the actual user IDs from auth.users and insert into our users table
-INSERT INTO users (id, name, email, role) 
-SELECT 
-    au.id,
-    CASE 
-        WHEN au.email = 'admin@khanpos.com' THEN 'Admin User'
-        WHEN au.email = 'cashier@khanpos.com' THEN 'Cashier User'
-    END as name,
-    au.email,
-    CASE 
-        WHEN au.email = 'admin@khanpos.com' THEN 'ADMIN'
-        WHEN au.email = 'cashier@khanpos.com' THEN 'CASHIER'
-    END as role
-FROM auth.users au
-WHERE au.email IN ('admin@khanpos.com', 'cashier@khanpos.com')
-ON CONFLICT (email) DO NOTHING;
-
--- Success message
-SELECT 'Database setup completed successfully! You can now login with admin/admin or cashier/cashier.' as message;
+SELECT 'Database setup completed. Create Auth users: admin@gmail.com/admin and cashier@gmail.com/cashier.' as message;
 

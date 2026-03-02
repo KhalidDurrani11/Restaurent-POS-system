@@ -53,3 +53,5 @@ export interface SaleTransaction {
   created_at?: string;
   updated_at?: string;
 }
+
+export type PaymentMethod = 'CASH' | 'CARD' | 'DIGITAL';

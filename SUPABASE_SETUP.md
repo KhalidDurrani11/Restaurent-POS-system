@@ -1,6 +1,6 @@
 # Supabase Integration Setup Guide
 
-This guide will help you integrate your Supabase database with the Khan POS application.
+This guide will help you integrate your Supabase database with the Khan Medical POS application.
 
 ## Prerequisites
 
@@ -44,13 +44,13 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 3. Copy and paste the contents of `database/schema.sql`
 4. Run the SQL script to create all necessary tables and data
 
-### 4. Configure Authentication (Optional)
+### 4. Create login users (required)
 
-If you want to use Supabase authentication:
-
-1. Go to Authentication > Settings in your Supabase dashboard
-2. Configure your authentication providers
-3. Update the authentication policies in the SQL schema if needed
+1. Go to **Authentication → Users** in your Supabase dashboard.
+2. Click **Add user → Create new user** and create:
+   - **Admin:** Email `admin@gmail.com`, Password `admin` (tick Auto Confirm User).
+   - **Cashier:** Email `cashier@gmail.com`, Password `cashier` (tick Auto Confirm User).
+3. On first login, the app will create their row in `public.users` with the correct role. No extra SQL needed.
 
 ### 5. Test the Integration
 

@@ -1,5 +1,5 @@
 {
-  "name": "Khan's Restaurant",
-  "description": "A modern, cloud-based POS (Point of Sale) and Inventory Management Web Application for small shops, cafés, and retail businesses, enhanced with AI for better insights.",
+  "name": "Khan Medical POS",
+  "description": "A modern, cloud-based Medical POS and inventory management web app for pharmacies and medical shops, enhanced with AI for better insights.",
   "requestFramePermissions": []
 }
