@@ -162,15 +162,17 @@ const Receipt: React.FC<ReceiptProps> = ({
   }
 
   const handlePrint = () => {
-    const printWindow = window.open('', '_blank', 'noopener,noreferrer');
+    const html = getPrintDocument();
+    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const printWindow = window.open(url, '_blank', 'noopener,noreferrer');
     if (!printWindow) {
+      URL.revokeObjectURL(url);
       alert('Please allow pop-ups to print the receipt.');
       return;
     }
-    printWindow.document.write(getPrintDocument());
-    printWindow.document.close();
-    printWindow.focus();
-    // Save transaction after print dialog is done (user can cancel print but we still save)
+    // Give it time to load, then we can revoke the URL
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
     onPrint();
   };
 

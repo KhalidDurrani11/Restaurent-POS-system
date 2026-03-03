@@ -163,6 +163,7 @@ const App: React.FC = () => {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create transaction');
       console.error('Error creating transaction:', err);
+      throw err;
     }
   }, []);
 
