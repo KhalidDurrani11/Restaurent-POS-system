@@ -77,8 +77,9 @@ const PosScreen: React.FC = () => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 min-h-0 flex-1">
-      {showReceipt && lastSale && (
+      {showReceipt && lastSale && lastSale.length > 0 && (
         <Receipt
+          key={receiptNumber}
           cart={lastSale}
           total={lastSale.reduce((acc, item) => acc + item.price * item.quantity, 0)}
           paymentMethod={paymentMethod}

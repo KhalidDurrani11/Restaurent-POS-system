@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { userService } from '../../services/databaseService';
 import { UserRole } from '../../types';
 import { PosIcon } from '../ui/Icons';
 import Spinner from '../ui/Spinner';
+import { isSupabaseConfigured } from '../../services/supabase';
 
 interface LoginSupabaseProps {
   onLogin: (user: { id: string; name: string; email: string; role: UserRole }) => void;
@@ -13,6 +14,11 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [configMissing, setConfigMissing] = useState(false);
+
+  useEffect(() => {
+    setConfigMissing(!isSupabaseConfigured());
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +41,14 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
         });
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please check your credentials.');
+      const msg = err instanceof Error ? err.message : 'Login failed.';
+      if (!isSupabaseConfigured()) {
+        setError('Supabase is not configured. On Netlify: add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Site settings → Environment variables, then redeploy.');
+      } else if (msg.includes('fetch') || msg.includes('network') || msg.includes('Failed to fetch')) {
+        setError('Network error. If this is your live site, add your site URL (e.g. https://your-site.netlify.app) to Supabase → Authentication → URL Configuration → Redirect URLs.');
+      } else {
+        setError(msg);
+      }
       console.error('Login error:', err);
     } finally {
       setLoading(false);
@@ -58,7 +71,12 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
         role: userProfile.role as UserRole,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Demo login failed.');
+      const msg = err instanceof Error ? err.message : 'Demo login failed.';
+      if (!isSupabaseConfigured()) {
+        setError('Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Netlify Environment variables.');
+      } else {
+        setError(msg);
+      }
       console.error('Demo login error:', err);
     } finally {
       setLoading(false);
@@ -115,6 +133,11 @@ const LoginSupabase: React.FC<LoginSupabaseProps> = ({ onLogin }) => {
             </div>
           </div>
           
+          {configMissing && (
+            <div className="bg-amber-500/20 border border-amber-500/50 rounded-lg p-3 text-amber-200 text-sm">
+              <strong>Not configured for production.</strong> Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Netlify → Site settings → Environment variables, then redeploy. Also add your Netlify site URL in Supabase → Authentication → URL Configuration → Redirect URLs.
+            </div>
+          )}
           {error && (
             <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 text-red-300 text-sm">
               {error}

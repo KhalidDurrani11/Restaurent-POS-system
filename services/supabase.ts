@@ -1,23 +1,21 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-// Supabase configuration - using environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseAnonKey = (import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY) as string | undefined;
+// Supabase configuration - from environment (set in Netlify → Site settings → Environment variables)
+const supabaseUrl = (import.meta.env.VITE_SUPABASE_URL as string) || '';
+const supabaseAnonKey =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string) ||
+  (import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY as string) ||
+  '';
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase configuration. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.'
-  );
-}
+const hasValidConfig = supabaseUrl.startsWith('https://') && supabaseAnonKey.length > 20;
 
-// Alternative: Use config file (uncomment if you prefer config file)
-// import { supabaseConfig } from '../config/supabase.config';
-// const supabaseUrl = supabaseConfig.url;
-// const supabaseAnonKey = supabaseConfig.anonKey;
+// Create client only when config is present (avoids crash on Netlify when env vars are missing)
+export const supabase: SupabaseClient = createClient(
+  hasValidConfig ? supabaseUrl : 'https://placeholder.supabase.co',
+  hasValidConfig ? supabaseAnonKey : 'placeholder-key-so-app-loads'
+);
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const isSupabaseConfigured = (): boolean => hasValidConfig;
 
 // Database types (will be updated based on your actual schema)
 export interface Database {

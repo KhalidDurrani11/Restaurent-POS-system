@@ -58,7 +58,31 @@ On **first login** in the app, a row is created in `public.users` with the corre
 
 ---
 
-## 5. Run the app
+## 5. Deploy on Netlify (login will work live)
+
+For the app to work on your live Netlify URL (e.g. `https://your-app.netlify.app`):
+
+### A. Set environment variables in Netlify
+
+1. In Netlify: **Site configuration** (or **Site settings**) → **Environment variables**.
+2. Add:
+   - **Key:** `VITE_SUPABASE_URL` → **Value:** your Supabase Project URL  
+   - **Key:** `VITE_SUPABASE_ANON_KEY` → **Value:** your Supabase anon public key  
+3. **Save** and **Trigger deploy** (or push a new commit) so the new build uses these values.
+
+Without these, the app loads but login will fail (you’ll see a message asking you to set them).
+
+### B. Allow your site in Supabase
+
+1. In Supabase: **Authentication** → **URL Configuration**.
+2. Under **Redirect URLs**, add your Netlify URL, e.g. `https://your-app.netlify.app`.
+3. Optionally set **Site URL** to the same Netlify URL.
+
+If this is missing, login may fail with a redirect or network error on the live site.
+
+---
+
+## 6. Run the app locally
 
 ```bash
 npm install
@@ -93,3 +117,13 @@ Open the URL shown in the terminal. Log in with:
 - **Reports:** View all sales transactions.
 - **AI Assistant:** Ask questions about sales and stock (optional, needs Gemini API key).
 - **Responsive:** Works on desktop, tablet, and phone; large buttons and clear layout for beginners.
+
+---
+
+## Troubleshooting
+
+- **Login works locally but not on Netlify**  
+  Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Netlify Environment variables, redeploy, and add your Netlify URL to Supabase → Authentication → URL Configuration → Redirect URLs.
+
+- **Receipt modal not showing after Checkout**  
+  Ensure you have items in the cart and click **Checkout** once. The receipt opens in a full-screen overlay; if it still doesn’t appear, check the browser console for errors.

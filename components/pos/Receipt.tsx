@@ -1,4 +1,5 @@
 import React, { useRef, useMemo } from 'react';
+import ReactDOM from 'react-dom';
 import { CartItem } from '../../types';
 import type { PaymentMethod } from '../../types';
 
@@ -173,14 +174,14 @@ const Receipt: React.FC<ReceiptProps> = ({
     onPrint();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fade-in" role="dialog" aria-modal="true" aria-labelledby="receipt-title">
       <div className="bg-slate-800/95 border border-white/20 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
         {/* On-screen receipt preview */}
         <div className="p-6 overflow-y-auto flex-1">
           <div ref={receiptRef} className="bg-slate-900/50 rounded-xl border border-white/10 p-5 text-left">
             <div className="text-center pb-4 border-b border-teal-500/40">
-              <h2 className="text-xl font-bold text-teal-400">{SHOP_NAME}</h2>
+              <h2 id="receipt-title" className="text-xl font-bold text-teal-400">{SHOP_NAME}</h2>
               <p className="text-xs text-gray-500 mt-1">{SHOP_TAGLINE}</p>
               <p className="text-xs text-gray-400 mt-2 font-mono">{receiptId}</p>
               <p className="text-xs text-gray-500 mt-1">{dateTime}</p>
@@ -239,6 +240,10 @@ const Receipt: React.FC<ReceiptProps> = ({
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined' && document.body
+    ? ReactDOM.createPortal(modalContent, document.body)
+    : modalContent;
 };
 
 export default Receipt;
