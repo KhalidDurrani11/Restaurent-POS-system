@@ -15,7 +15,7 @@ export const DataContext = React.createContext<{
   products: Product[];
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   sales: SaleTransaction[];
-  addSale: (cart: CartItem[], cashierId: string, paymentMethod: PaymentMethod) => void;
+  addSale: (cart: CartItem[], cashierId: string, paymentMethod: PaymentMethod) => Promise<void>;
   categories: Category[];
   loading: boolean;
   error: string | null;
@@ -24,7 +24,7 @@ export const DataContext = React.createContext<{
   products: [],
   setProducts: () => {},
   sales: [],
-  addSale: () => {},
+  addSale: async () => {},
   categories: [],
   loading: false,
   error: null,
