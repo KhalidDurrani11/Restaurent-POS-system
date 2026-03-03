@@ -1,8 +1,16 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useEffect, useMemo, useState, useContext } from 'react';
 import { DataContext, AuthContext } from '../../App';
 import { Product, CartItem, PaymentMethod } from '../../types';
 import Receipt from './Receipt';
 import { BandageIcon, CareIcon, DeviceIcon, PillIcon, VitaminIcon } from '../ui/Icons';
+import Modal from '../ui/Modal';
+
+type HeldBill = {
+  id: string;
+  createdAt: string;
+  items: CartItem[];
+  paymentMethod: PaymentMethod;
+};
 
 const PosScreen: React.FC = () => {
   const { products, categories, addSale } = useContext(DataContext);
@@ -16,6 +24,30 @@ const PosScreen: React.FC = () => {
   const [receiptNumber, setReceiptNumber] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CASH');
+  const [heldBills, setHeldBills] = useState<HeldBill[]>([]);
+  const [isHeldBillsOpen, setIsHeldBillsOpen] = useState(false);
+
+  const HELD_BILLS_KEY = 'khan-medical-pos-held-bills-v1';
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(HELD_BILLS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as HeldBill[];
+      if (Array.isArray(parsed)) setHeldBills(parsed);
+    } catch {
+      // ignore
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(HELD_BILLS_KEY, JSON.stringify(heldBills));
+    } catch {
+      // ignore
+    }
+  }, [heldBills]);
 
   const filteredProducts = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -69,6 +101,42 @@ const PosScreen: React.FC = () => {
   };
 
   const cartTotal = useMemo(() => cart.reduce((t, i) => t + i.price * i.quantity, 0), [cart]);
+
+  const holdCurrentBill = () => {
+    if (cart.length === 0) return;
+    const held: HeldBill = {
+      id: `HOLD-${Date.now().toString(36).toUpperCase()}`,
+      createdAt: new Date().toISOString(),
+      items: [...cart],
+      paymentMethod,
+    };
+    setHeldBills((prev) => [held, ...prev].slice(0, 20));
+    setCart([]);
+    setCheckoutError(null);
+  };
+
+  const startNewBill = () => {
+    if (cart.length > 0) {
+      const ok = window.confirm('Clear the current cart and start a new bill?');
+      if (!ok) return;
+    }
+    setCart([]);
+    setCheckoutError(null);
+  };
+
+  const resumeHeldBill = (id: string) => {
+    const bill = heldBills.find((b) => b.id === id);
+    if (!bill) return;
+    setHeldBills((prev) => prev.filter((b) => b.id !== id));
+    setPaymentMethod(bill.paymentMethod);
+    setCart(bill.items);
+    setCheckoutError(null);
+    setIsHeldBillsOpen(false);
+  };
+
+  const deleteHeldBill = (id: string) => {
+    setHeldBills((prev) => prev.filter((b) => b.id !== id));
+  };
   const handleCheckout = async () => {
     if (cart.length === 0 || !user || isCheckingOut) return;
     setIsCheckingOut(true);
@@ -101,6 +169,46 @@ const PosScreen: React.FC = () => {
           onPrint={() => {}}
         />
       )}
+      <Modal isOpen={isHeldBillsOpen} onClose={() => setIsHeldBillsOpen(false)} title="Held Bills">
+        {heldBills.length === 0 ? (
+          <p className="text-gray-300">No held bills yet.</p>
+        ) : (
+          <div className="space-y-3">
+            {heldBills.map((b) => {
+              const total = b.items.reduce((acc, it) => acc + it.price * it.quantity, 0);
+              const count = b.items.reduce((acc, it) => acc + it.quantity, 0);
+              return (
+                <div key={b.id} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-white font-semibold truncate">{b.id}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Items: {count} • Total: Rs. {total.toFixed(0)} • {new Date(b.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => resumeHeldBill(b.id)}
+                        className="px-3 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-400/40 text-cyan-200 hover:bg-cyan-500/30"
+                      >
+                        Resume
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteHeldBill(b.id)}
+                        className="px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-400/30 text-rose-200 hover:bg-rose-500/20"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Modal>
       {/* Products – left side: clear sections, no overlap */}
       <div className="flex flex-col flex-1 min-w-0 lg:max-w-[60%] bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-white/10 flex-shrink-0">
@@ -178,10 +286,41 @@ const PosScreen: React.FC = () => {
       {/* Cart – right side: simple and clear */}
       <div className="flex flex-col w-full lg:w-[380px] flex-shrink-0 bg-black/30 backdrop-blur-lg border border-white/10 rounded-2xl shadow-lg overflow-hidden">
         <div className="p-4 sm:p-5 border-b border-white/10">
-          <h2 className="text-xl font-bold text-white">Your cart</h2>
-          <p className="text-sm text-gray-400 mt-1">
-            {cart.length === 0 ? 'Cart is empty' : `${cart.reduce((a, i) => a + i.quantity, 0)} item(s)`}
-          </p>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-xl font-bold text-white">Your cart</h2>
+              <p className="text-sm text-gray-400 mt-1">
+                {cart.length === 0 ? 'Cart is empty' : `${cart.reduce((a, i) => a + i.quantity, 0)} item(s)`}
+              </p>
+              {heldBills.length > 0 && (
+                <p className="text-xs text-gray-500 mt-1">Held bills: {heldBills.length}</p>
+              )}
+            </div>
+            <div className="flex flex-col gap-2 flex-shrink-0">
+              <button
+                type="button"
+                onClick={holdCurrentBill}
+                disabled={cart.length === 0}
+                className="px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-gray-200 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+              >
+                Hold
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsHeldBillsOpen(true)}
+                className="px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-gray-200 hover:bg-white/10 text-sm font-medium"
+              >
+                Recall
+              </button>
+              <button
+                type="button"
+                onClick={startNewBill}
+                className="px-3 py-2 rounded-lg border border-white/10 bg-white/5 text-gray-200 hover:bg-white/10 text-sm font-medium"
+              >
+                New
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">

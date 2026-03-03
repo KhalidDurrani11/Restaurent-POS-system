@@ -161,18 +161,44 @@ const Receipt: React.FC<ReceiptProps> = ({
       .replace(/"/g, '&quot;');
   }
 
+  const printHtmlInHiddenIframe = (html: string) => {
+    if (typeof document === 'undefined') return;
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    iframe.style.opacity = '0';
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.srcdoc = html;
+
+    const cleanup = () => {
+      try {
+        iframe.remove();
+      } catch {
+        // ignore
+      }
+    };
+
+    iframe.onload = () => {
+      try {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+      } finally {
+        // Remove shortly after opening print dialog.
+        setTimeout(cleanup, 1500);
+      }
+    };
+
+    document.body.appendChild(iframe);
+  };
+
   const handlePrint = () => {
     const html = getPrintDocument();
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const printWindow = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!printWindow) {
-      URL.revokeObjectURL(url);
-      alert('Please allow pop-ups to print the receipt.');
-      return;
-    }
-    // Give it time to load, then we can revoke the URL
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    // Print without leaving the POS page (user can choose "Save as PDF")
+    printHtmlInHiddenIframe(html);
     onPrint();
   };
 
@@ -220,7 +246,7 @@ const Receipt: React.FC<ReceiptProps> = ({
         </div>
         <div className="p-4 border-t border-white/10 bg-slate-800/80 space-y-3">
           <p className="text-xs text-gray-500 text-center sm:text-right">
-            Choose &quot;Save as PDF&quot; or a printer in the next window.
+            Choose &quot;Save as PDF&quot; or a printer in the print dialog.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             <button
@@ -228,14 +254,14 @@ const Receipt: React.FC<ReceiptProps> = ({
               onClick={onClose}
               className="px-5 py-2.5 rounded-xl border border-white/20 text-gray-300 hover:bg-white/10 transition-colors font-medium"
             >
-              Cancel
+              Done
             </button>
             <button
               type="button"
               onClick={handlePrint}
               className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold hover:from-teal-600 hover:to-cyan-600 shadow-lg shadow-cyan-500/25 transition-all"
             >
-              Print / Save as PDF
+              Save PDF / Print
             </button>
           </div>
         </div>
